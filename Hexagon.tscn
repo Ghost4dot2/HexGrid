@@ -4,23 +4,18 @@
 
 [node name="Hexagon" type="Node2D"]
 script = ExtResource( 1 )
-hexSize = 0
-
-[node name="Polygon2D" type="Polygon2D" parent="."]
-visible = false
-polygon = PoolVector2Array( 50, 0, 25, 43.301, -25, 43.301, -50, 0, -25, -43.301, 25, -43.301 )
-
-[node name="Area2D" type="Area2D" parent="."]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
-visible = false
-polygon = PoolVector2Array( 50, 0, 25, 43.301, -25.0245, 43.274, -50, 0, -25, -43.301, 25, -43.301 )
 
 [node name="Line2D" type="Line2D" parent="."]
-points = PoolVector2Array( 50, 0, 25, 43.301, -25, 43.301, -50, 0, -25, -43.301, 25, -43.301, 50, 0 )
+points = PoolVector2Array( 40, 0, 20, 34.641, -20, 34.641, -40, 4.89843e-15, -20, -34.641, 20, -34.641, 40, 0 )
 width = 1.0
 default_color = Color( 0, 0, 0, 1 )
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+visible = false
+polygon = PoolVector2Array( 40, 0, 20, 34.641, -20, 34.641, -40, 4.89843e-15, -20, -34.641, 20, -34.641, 40, 0 )
 [connection signal="mouse_entered" from="Area2D" to="." method="_on_Area2D_mouse_entered"]
