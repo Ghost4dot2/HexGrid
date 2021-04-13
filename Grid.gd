@@ -79,7 +79,7 @@ func calculateCoordinates():
 func squareOffCoordinates():
 	for _i in range(0, gridWidth/2 + gridWidth % 2):
 		var pos = gridHeight * gridWidth + _i
-		hexagons[pos].offsetToCube(_i * 2, gridWidth-2)
+		hexagons[pos].offsetToCube(_i * 2, gridHeight)
 		hexagons[pos].updatePosition()
 		hexagons[pos].hexType = "Half Top"
 		print(pos)
