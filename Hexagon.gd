@@ -3,13 +3,20 @@ extends Node2D
 
 export(int, 1, 9000) var hexSize = 40 setget on_hexsize_change
 export (String, "Full", "Half Top", "Half Bottom", "Half Left", "Half Right") var hexType : String = "Full" setget on_hextype_change
-var prevSize: int = 0
+export (bool) var Selected : bool = false setget on_selected_change
 
-var disabled : bool = false
+var outlineColor : Color = Color("000000")
 
 var _q : int = 0
 var _r : int = 0
 var _s : int = 0
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass
+
+func _process(_delta):
+	pass
 
 func on_hextype_change(input):
 	hexType = input
@@ -18,6 +25,17 @@ func on_hextype_change(input):
 func on_hexsize_change(input):
 	hexSize = input
 	setVertices(vertices(hexSize))
+
+func on_selected_change(input):
+	Selected = input
+	if $Outline:
+		if Selected:
+			$Outline.set_default_color(Color("FF000000"))
+		else:
+			$Outline.set_default_color(Color("806e6e6e"))
+
+func update_outline(color : Color):
+	$Outline.set_default_color(color)
 
 func vertices( _size : int, center : Vector2 = Vector2(0,0) ) -> Array:
 	#print(hexType)
@@ -89,14 +107,13 @@ func offsetToCube(col : int, row : int):
 	
 
 func setVertices(vertices : Array):
-	$"Line2D".clear_points()
+	$Outline.clear_points()
 	for point in vertices:
-		$"Line2D".add_point(point)
+		$Outline.add_point(point)
 	#add first point as last
 
-	$"Line2D".add_point(vertices[0])
-	$"Area2D/CollisionPolygon2D".polygon = $"Line2D".points
-	#print($"Line2D".points)
+	$Outline.add_point(vertices[0])
+	$"Area2D/CollisionPolygon2D".polygon = $Outline.points
 
 func calculatePixelPosition() -> Vector2:
 	# the .5 is for the line width
@@ -127,15 +144,11 @@ func total() -> int:
 func debug():
 	print("Hex: ", _q ,"q ", _r,"r ", _s, "s --")
 	print("Position: ", calculatePixelPosition())
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-func _process(_delta):
-#	if prevSize != hexSize:
-#		prevSize = hexSize
-#		setVertices(vertices(hexSize))
-	pass
-
+	
 func _on_Area2D_mouse_entered():
 	print("Found Polygon " + String(_q) + ", " + String(_r))
+
+func _on_Area2D_input_event(_viewport, event, _shape_idx):
+	if event is InputEventMouseButton:
+		if event.button_index == BUTTON_LEFT and event.is_pressed():
+			on_selected_change(not Selected) 
