@@ -115,13 +115,19 @@ func setVertices(vertices : Array):
 	$Outline.add_point(vertices[0])
 	$"Area2D/CollisionPolygon2D".polygon = $Outline.points
 
-func calculatePixelPosition() -> Vector2:
+func calculatePixelPosition(offset : Vector2 = Vector2(0,0)) -> Vector2:
 	# the .5 is for the line width
-	return Vector2(float(hexSize + .5) * 3.0/2.0 * float(_q), \
-				   float(hexSize + .5) * (sqrt(3.0)/2.0 * _q + sqrt(3.0) * float(_r)))
+	return Vector2(float(hexSize + .5) * 3.0/2.0 * float(_q) + offset.x, \
+				   float(hexSize + .5) * (sqrt(3.0)/2.0 * _q + sqrt(3.0) * float(_r)) + offset.y)
 
-func updatePosition():
-	set_position(calculatePixelPosition())
+func updatePosition(offsetXBySize : bool = false, offsetYBySize : bool = false):
+	var offset = Vector2(0,0)
+	if offsetXBySize:
+		offset.x = hexSize
+	if offsetYBySize:
+		offset.y = sin(PI/3) * hexSize
+	
+	set_position(calculatePixelPosition(offset))
 
 func height() -> float:
 	return sqrt(3) * hexSize

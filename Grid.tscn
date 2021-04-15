@@ -4,6 +4,10 @@
 
 [node name="Grid" type="Node2D"]
 script = ExtResource( 1 )
-gridHeight = 3
-gridWidth = 7
+gridHeight = 4
+gridWidth = 6
 squareOff = true
+
+[node name="Line2D" type="Line2D" parent="."]
+points = PoolVector2Array( 20.8237, -1.17401, 457.316, 0.160833, 455.982, 349.221, 20.8237, 348.554, 22.1586, -1.17401 )
+default_color = Color( 0, 0, 0, 1 )

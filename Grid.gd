@@ -17,7 +17,10 @@ func set_grid_size(input):
 	hexSize = input
 	for hex in hexagons:
 		hex.hexSize = hexSize
-		hex.updatePosition()
+		if squareOff:
+			hex.updatePosition(true)
+		else:
+			hex.updatePosition(true, true)
 
 func set_grid_height(input):
 	gridHeight = input
@@ -50,14 +53,14 @@ func generateRegularGrid():
 	#creates initial hexes
 	var numberOfHexs = gridHeight * gridWidth
 	createHexes(numberOfHexs)
-	calculateCoordinates()
+	calculateCoordinates(true, true)
 
 func generateSquareGrid():
 	var numberOfHexs = gridHeight * gridWidth + gridWidth/2 + gridWidth % 2
 	createHexes(numberOfHexs)
 	squareOff()
-	calculateCoordinates()
-	squareOffCoordinates()
+	calculateCoordinates(true)
+	squareOffCoordinates(true)
 
 func createHexes(numberOfHexs : int):
 	for _i in range(0, numberOfHexs):
@@ -67,20 +70,20 @@ func createHexes(numberOfHexs : int):
 		hexagons.append(newHex)
 		$".".add_child(newHex)
 
-func calculateCoordinates():
+func calculateCoordinates(offsetX : bool = false, offsetY : bool = false):
 	#sets grid coordinates
 	for row in range(0, gridHeight):
 		for col in range(0, gridWidth):
 			var pos = col + row*(gridWidth)
 			hexagons[pos].offsetToCube(col, row)
-			hexagons[pos].updatePosition()
+			hexagons[pos].updatePosition(offsetX, offsetY)
 			#hexagons[pos].debug()
 
-func squareOffCoordinates():
+func squareOffCoordinates(offsetX : bool = false, offsetY : bool = false):
 	for _i in range(0, gridWidth/2 + gridWidth % 2):
 		var pos = gridHeight * gridWidth + _i
 		hexagons[pos].offsetToCube(_i * 2, gridHeight)
-		hexagons[pos].updatePosition()
+		hexagons[pos].updatePosition(offsetX, offsetY)
 		hexagons[pos].hexType = "Half Top"
 		print(pos)
 
