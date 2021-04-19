@@ -101,10 +101,21 @@ func setCoordinate(q : int, r : int):
 	_s = -q - r
 
 func offsetToCube(col : int, row : int):
-	_q = col 
-	_r = row - (col - (col&1)) / 2
+	var coordinate = calculateAxialCoordinate(col, row)
+	_q = coordinate.x
+	_r = coordinate.y
 	_s = -_q - _r
-	
+
+static func calculateOffsetCoord(q : int, r : int) -> Vector2:
+	var offset = Vector2(0,0)
+	offset.x = q
+	offset.y = r - (q - (q&1))/2
+	return offset
+
+static func calculateAxialCoordinate(col : int, row : int) -> Vector2:
+	return Vector2(col, row - (col - (col&1)) / 2)
+
+
 
 func setVertices(vertices : Array):
 	$Outline.clear_points()
@@ -120,13 +131,7 @@ func calculatePixelPosition(offset : Vector2 = Vector2(0,0)) -> Vector2:
 	return Vector2(float(hexSize + .5) * 3.0/2.0 * float(_q) + offset.x, \
 				   float(hexSize + .5) * (sqrt(3.0)/2.0 * _q + sqrt(3.0) * float(_r)) + offset.y)
 
-func updatePosition(offsetXBySize : bool = false, offsetYBySize : bool = false):
-	var offset = Vector2(0,0)
-	if offsetXBySize:
-		offset.x = hexSize
-	if offsetYBySize:
-		offset.y = sin(PI/3) * hexSize
-	
+func updatePosition(offset : Vector2 = Vector2(0,0)):
 	set_position(calculatePixelPosition(offset))
 
 func height() -> float:

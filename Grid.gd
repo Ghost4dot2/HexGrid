@@ -6,21 +6,19 @@ var Hex = preload("res://Hexagon.tscn")
 export(int, 1, 9000) var hexSize = 50 setget set_grid_size
 export(int, 1, 100) var gridHeight = 1 setget set_grid_height
 export(int, 1, 100) var gridWidth = 1 setget set_grid_width
-export(bool) var squareOff = false setget set_squareoff
+export(bool) var squareOff = false setget set_squareOff
+export(bool) var squareOffVertical = false setget set_squareOffVertical
 
-var currentGridHeight : int = 1 
-var currentGridWidth : int = 1
+var offset : Vector2 = Vector2(hexSize, hexSize * sin(PI/3))
 
 var hexagons : Array
 
+var hexagonMap : Dictionary
+
 func set_grid_size(input):
 	hexSize = input
-	for hex in hexagons:
-		hex.hexSize = hexSize
-		if squareOff:
-			hex.updatePosition(true)
-		else:
-			hex.updatePosition(true, true)
+	updateOffset()
+	Update()
 
 func set_grid_height(input):
 	gridHeight = input
@@ -32,79 +30,78 @@ func set_grid_width(input):
 	clearGrid()
 	generateGrid()
 
-func set_squareoff(input):
+func set_squareOff(input):
 	squareOff = input
+	updateOffset()
 	clearGrid()
 	generateGrid()
+
+func set_squareOffVertical(input):
+	squareOffVertical = input
+	updateOffset()
+	clearGrid()
+	generateGrid()
+
+func updateOffset():
+	if squareOffVertical == true:
+		offset.x = hexSize /.2
+	else:
+		offset.x = hexSize
+		
+	if squareOff == true:
+		offset.y = 0
+	else:
+		offset.y = hexSize * sin(PI/3)
+	
+	print(offset)
+
+func Update():
+	for child in $".".get_children():
+		child.hexSize = hexSize
+		child.updatePosition(offset)
 
 func clearGrid():
 	if not hexagons.empty():
 		hexagons.clear()
+	if not hexagonMap.empty():
+		hexagonMap.clear()
 	for child in $".".get_children():
 		$".".remove_child(child)
 
 func generateGrid():
+	createBase()
 	if squareOff:
-		generateSquareGrid()
-	else:
-		generateRegularGrid()
+		createHorizontalSquare()
+	if squareOffVertical:
+		createVerticalSquare()
 
-func generateRegularGrid():
-	#creates initial hexes
-	var numberOfHexs = gridHeight * gridWidth
-	createHexes(numberOfHexs)
-	calculateCoordinates(true, true)
-
-func generateSquareGrid():
-	var numberOfHexs = gridHeight * gridWidth + gridWidth/2 + gridWidth % 2
-	createHexes(numberOfHexs)
-	squareOff()
-	calculateCoordinates(true)
-	squareOffCoordinates(true)
-
-func createHexes(numberOfHexs : int):
-	for _i in range(0, numberOfHexs):
-		var newHex = Hex.instance()
-		newHex.hexType = "Full"
-		newHex.hexSize = hexSize
-		hexagons.append(newHex)
-		$".".add_child(newHex)
-
-func calculateCoordinates(offsetX : bool = false, offsetY : bool = false):
-	#sets grid coordinates
+func createBase():
 	for row in range(0, gridHeight):
 		for col in range(0, gridWidth):
-			var pos = col + row*(gridWidth)
-			hexagons[pos].offsetToCube(col, row)
-			hexagons[pos].updatePosition(offsetX, offsetY)
-			#hexagons[pos].debug()
+			addHex(col, row, "Full")
+			
+#adds the necessary hexagons and changes some to 1/2 hexagons
+func createHorizontalSquare():
+	var temphex = Hex.instance()
+	for col in range(0, gridWidth/2 + gridWidth % 2):
+		#update top hexagons
+		var pos = temphex.calculateAxialCoordinate(col * 2, 0)
+		hexagonMap[pos].hexType = "Half Bottom"
+		#create and add bottom hexagons
+		addHex(col * 2, gridHeight, "Half Top" )
 
-func squareOffCoordinates(offsetX : bool = false, offsetY : bool = false):
-	for _i in range(0, gridWidth/2 + gridWidth % 2):
-		var pos = gridHeight * gridWidth + _i
-		hexagons[pos].offsetToCube(_i * 2, gridHeight)
-		hexagons[pos].updatePosition(offsetX, offsetY)
-		hexagons[pos].hexType = "Half Top"
-		print(pos)
+func createVerticalSquare():
+	pass
 
-func squareOff():
-	var col = 0
-	while col < gridWidth:
-		hexagons[col].hexType = "Half Bottom"
-		col = col + 2
-
-
-"""
-func calculateHalfHex() -> int:
-	var halfHexes = 0
-	if squareOff:
-		if gridWidth % 2 == 1:
-			halfHexes = gridWidth - 1
-		else:
-			halfHexes = gridWidth
-	return halfHexes 
-"""
-
+func addHex(col : int, row : int, type : String):
+	var hex = Hex.instance()
+	hex.hexType = type
+	hex.hexSize = hexSize
+	hex.offsetToCube(col, row)
+	var cubePos = hex.calculateAxialCoordinate(col, row)
+	hex.updatePosition(offset)
+	hexagonMap[cubePos] = hex
+	$".".add_child(hex)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
